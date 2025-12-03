@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bảng theo dõi tập tính sư tử nuôi nhốt</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style>
+    body {
+      min-height: 100vh;
+      background-image: url('https://images.unsplash.com/photo-1508672019048-805c876b67e2?auto=format&fit=crop&w=1600&q=80');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    /* Custom scrollbar for notes list */
+    .thin-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .thin-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .thin-scrollbar::-webkit-scrollbar-thumb {
+      background-color: rgba(148, 163, 184, 0.7);
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="font-sans text-slate-100">
+  <div class="min-h-screen bg-black/70 backdrop-blur-sm">
+    <header class="border-b border-white/10 bg-gradient-to-r from-black/60 via-black/30 to-black/60">
+      <div class="max-w-6xl mx-auto px-4 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-3">
+            <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-amber-500/80 text-black font-extrabold shadow-lg shadow-amber-500/40">🦁</span>
+            <span>Bảng theo dõi tập tính sư tử nuôi nhốt</span>
+          </h1>
+          <p class="mt-2 text-sm md:text-base text-slate-200 max-w-2xl">
+            Dùng để ghi nhận hành vi hằng ngày của sư tử tại vườn thú, nhằm phát hiện sớm dấu hiệu stress, buồn chán
+            hoặc bất thường về sức khỏe.
+          </p>
+        </div>
+        <div class="text-right space-y-1 text-xs md:text-sm">
+          <p class="font-medium text-amber-300">Chế độ: Quan sát định kỳ</p>
+          <p id="currentDate" class="text-slate-200">Ngày: --/--/----</p>
+          <p id="currentTime" class="text-slate-300">Giờ: --:--</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 pb-10 pt-6 grid lg:grid-cols-3 gap-5">
+      <!-- Cột trái: Thông tin cá thể + Chỉ tiêu chính -->
+      <section class="lg:col-span-2 space-y-5">
+        <!-- Thông tin cá thể -->
+        <div class="bg-black/60 border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/40">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg md:text-xl font-semibold flex items-center gap-2">
+              <span class="h-6 w-1.5 rounded-full bg-amber-500"></span>
+              Thông tin cá thể
+            </h2>
+            <button id="clearAllBtn" class="text-xs px-2 py-1 rounded-full border border-red-400/60 text-red-200 hover:bg-red-500/10 active:scale-95 transition text-[11px]">
+              Xoá toàn bộ dữ liệu
+            </button>
+          </div>
+          <div class="grid md:grid-cols-3 gap-3 text-xs md:text-sm">
+            <div class="space-y-1">
+              <label class="block text-slate-200">Tên/ID cá thể</label>
+              <input id="lionId" type="text" class="w-full rounded-lg bg-black/60 border border-white/15 px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-amber-400/80" placeholder="VD: L01 - Đực trưởng thành" />
+            </div>
+            <div class="space-y-1">
+              <label class="block text-slate-200">Giới tính</label>
+              <select id="lionSex" class="w-full rounded-lg bg-black/60 border border-white/15 px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-amber-400/80">
+                <option value="">Chọn</option>
+                <option value="Đực">Đực</option>
+                <option value="Cái">Cái</option>
+              </select>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-slate-200">Tuổi ước tính (năm)</label>
+              <input id="lionAge" type="number" min="0" step="0.1" class="w-full rounded-lg bg-black/60 border border-white/15 px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-amber-400/80" />
+            </div>
+            <div class="space-y-1">
+              <label class="block text-slate-200">Khu chuồng</label>
+              <input id="enclosure" type="text" class="w-full rounded-lg bg-black/60 border border-white/15 px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-amber-400/80" placeholder="VD: Khu săn mồi 1" />
+            </div>
+            <div class="space-y-1">
+              <label class="block text-slate-200">Người phụ trách quan sát</label>
+              <input id="observer" type="text" class="w-full rounded-lg bg-black/60 border border-white/15 px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-amber-400/80" />
+            </div>
+            <div class="space-y-1">
+              <label class="block text-slate-200">Khung giờ quan sát chính</label>
+              <input id="timeSlot" type="text" class="w-full rounded-lg bg-black/60 border border-white/15 px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-amber-400/80" placeholder="VD: 08:00 – 10:00" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Chỉ tiêu chính về tập tính -->
+        <div class="bg-black/60 border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/40">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg md:text-xl font-semibold flex items-center gap-2">
+              <span class="h-6 w-1.5 rounded-full bg-amber-500"></span>
+              Chỉ tiêu hành vi chính (điểm 1–5)
+            </h2>
+            <p class="text-[11px] md:text-xs text-slate-300">
+              1 = rất kém / bất thường, 3 = trung bình, 5 = tốt / bình thường
+            </p>
+          </div>
+          <div class="overflow-x-auto text-xs md:text-sm">
+            <table class="w-full border-separate border-spacing-y-1">
+              <thead>
+                <tr class="text-left text-slate-300 text-[11px] md:text-xs">
+                  <th class="py-1.5 px-2">Chỉ tiêu</th>
+                  <th class="py-1.5 px-2">Ý nghĩa</th>
+                  <th class="py-1.5 px-2 w-36">Điểm (1–5)</th>
+                  <th class="py-1.5 px-2 w-40">Ghi chú nhanh</th>
+                </tr>
+              </thead>
+              <tbody id="scoreTableBody" class="align-top">
+                <tr class="bg-white/5 hover:bg-white/10 transition">
+                  <td class="py-2 px-2 font-medium text-slate-100">Ăn uống</td>
+                  <td class="py-2 px-2 text-slate-200">
+                    Lượng ăn, tốc độ ăn, sự hào hứng với thức ăn; giảm ăn có thể gợi ý đau, stress hoặc bệnh.
+                  </td>
+                  <td class="py-2 px-2">
+                    <input type="range" min="1" max="5" value="3" data-key="feeding" class="score-slider w-full" />
+                    <div class="text-[11px] mt-1 text-amber-200" data-label-for="feeding">Trung bình</div>
+                  </td>
+                  <td class="py-2 px-2">
+                    <input type="text" data-note-for="feeding" class="w-full rounded-md bg-black/60 border border-white/15 px-2 py-1 text-[11px]" placeholder="VD: Ăn hết khẩu phần trong 10 phút" />
+                  </td>
+                </tr>
+                <tr class="bg-white/5 hover:bg-white/10 transition">
+                  <td class="py-2 px-2 font-medium text-slate-100">Mức hoạt động</td>
+                  <td class="py-2 px-2 text-slate-200">
+                    Tổng thể tích đi lại, leo trèo, chơi; giảm hoặc tăng bất thường đều cần lưu ý.
+                  </td>
+                  <td class="py-2 px-2">
+                    <input type="range" min="1" max="5" value="3" data-key="activity" class="score-slider w-full" />
+                    <div class="text-[11px] mt-1 text-amber-200" data-label-for="activity">Trung bình</div>
+                  </td>
+                  <td class="py-2 px-2">
+                    <input type="text" data-note-for="activity" class="w-full rounded-md bg-black/60 border border-white/15 px-2 py-1 text-[11px]" placeholder="VD: Đi lại nhiều quanh rìa chuồng" />
+                  </td>
+                </tr>
+                <tr class="bg-white/5 hover:bg-white/10 transition">
+                  <td class="py-2 px-2 font-medium text-slate-100">Tương tác xã hội</td>
+                  <td class="py-2 px-2 text-slate-200">
+                    Đối với các cá thể nuôi chung: chơi đùa, liếm lông, hoặc hung hăng, cô lập.
+                  </td>
+                  <td class="py-2 px-2">
+                    <input type="range" min="1" max="5" value="3" data-key="social" class="score-slider w-full" />
+                    <div class="text-[11px] mt-1 text-amber-200" data-label-for="social">Trung bình</div>
+                  </td>
+                  <td class="py-2 px-2">
+                    <input type="text" data-note-for="social" class="w-full rounded-md bg-black/60 border border-white/15 px-2 py-1 text-[11px]" placeholder="VD: Nằm gần con cái, không xung đột" />
+                  </td>
+                </tr>
+                <tr class="bg-white/5 hover:bg-white/10 transition">
+                  <td class="py-2 px-2 font-medium text-slate-100">Hành vi bất thường</td>
+                  <td class="py-2 px-2 text-slate-200">
+                    Bước lặp lại, liếm/làm rụng lông, cắn song sắt, quay vòng… (điểm cao = ít/không xuất hiện).</n                  </td>
+                  <td class="py-2 px-2">
+                    <input type="range" min="1" max="5" value="4" data-key="stereotypy" class="score-slider w-full" />
+                    <div class="text-[11px] mt-1 text-amber-200" data-label-for="stereotypy">Tốt</div>
+                  </td>
+                  <td class="py-2 px-2">
+                    <input type="text" data-note-for="stereotypy" class="w-full rounded-md bg-black/60 border border-white/15 px-2 py-1 text-[11px]" placeholder="VD: Không thấy bước lặp lại" />
+                  </td>
+                </tr>
+                <tr class="bg-white/5 hover:bg-white/10 transition">
+                  <td class="py-2 px-2 font-medium text-slate-100">Phản ứng với khách & người chăm sóc</td>
+                  <td class="py-2 px-2 text-slate-200">
+                    Mức độ cảnh giác, sợ hãi hoặc hung hăng khi có người tới gần, âm thanh lớn.
+                  </td>
+                  <td class="py-2 px-2">
+                    <input type="range" min="1" max="5" value="3" data-key="humanReaction" class="score-slider w-full" />
+                    <div class="text-[11px] mt-1 text-amber-200" data-label-for="humanReaction">Trung bình</div>
+                  </td>
+                  <td class="py-2 px-2">
+                    <input type="text" data-note-for="humanReaction" class="w-full rounded-md bg-black/60 border border-white/15 px-2 py-1 text-[11px]" placeholder="VD: Đứng quan sát, không gầm gừ" />
+                  </td>
+                </tr>
+                <tr class="bg-white/5 hover:bg-white/10 transition">
+                  <td class="py-2 px-2 font-medium text-slate-100">Sử dụng đồ chơi/enrichment</td>
+                  <td class="py-2 px-2 text-slate-200">
+                    Mức độ tương tác với đồ chơi, mồi treo, khúc gỗ…; giảm chơi có thể gợi ý buồn chán hoặc mệt.
+                  </td>
+                  <td class="py-2 px-2">
+                    <input type="range" min="1" max="5" value="3" data-key="enrichment" class="score-slider w-full" />
+                    <div class="text-[11px] mt-1 text-amber-200" data-label-for="enrichment">Trung bình</div>
+                  </td>
+                  <td class="py-2 px-2">
+                    <input type="text" data-note-for="enrichment" class="w-full rounded-md bg-black/60 border border-white/15 px-2 py-1 text-[11px]" placeholder="VD: Chơi với bóng treo khoảng 5 phút" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-xs md:text-sm">
+            <div class="flex items-center gap-3">
+              <div>
+                <p class="text-slate-300">Điểm hành vi trung bình</p>
+                <p id="avgScore" class="text-2xl font-bold text-amber-300">3.2</p>
+              </div>
+              <div>
+                <p class="text-slate-300">Mức cảnh báo hành vi</p>
+                <div id="riskBadge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-200 border border-emerald-400/60">
+                  <span class="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  Bình thường
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2 justify-end">
+              <button id="exportJsonBtn" class="px-3 py-1.5 rounded-full border border-amber-400/70 text-amber-100 text-xs hover:bg-amber-500/10 active:scale-95 transition">
+                Xuất dữ liệu ra JSON
+              </button>
+              <button id="copyJsonBtn" class="px-3 py-1.5 rounded-full border border-sky-400/70 text-sky-100 text-xs hover:bg-sky-500/10 active:scale-95 transition hidden">
+                Sao chép JSON
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hành vi theo thời điểm trong ngày -->
+        <div class="bg-black/60 border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/40">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg md:text-xl font-semibold flex items-center gap-2">
+              <span class="h-6 w-1.5 rounded-full bg-amber-500"></span>
+              Mẫu hành vi theo thời điểm trong ngày
+            </h2>
+            <p class="text-[11px] md:text-xs text-slate-300">Đánh dấu hoạt động trội trong từng khoảng thời gian.</p>
+          </div>
+          <div class="grid md:grid-cols-4 gap-3 text-xs md:text-sm">
+            <div class="bg-white/5 rounded-xl p-3 border border-white/10">
+              <p class="font-semibold text-slate-100 mb-1">Sáng (06:00–10:00)</p>
+              <select id="morningBehavior" class="w-full rounded-md bg-black/60 border border-white/20 px-2 py-1.5 text-[11px]">
+                <option value="">Chọn hành vi trội</option>
+                <option value="Ngủ/nằm yên">Ngủ/nằm yên</option>
+                <option value="Đi lại, tuần tra chuồng">Đi lại, tuần tra chuồng</option>
+                <option value="Ăn uống">Ăn uống</option>
+                <option value="Chơi đùa, tương tác xã hội">Chơi đùa, tương tác xã hội</option>
+                <option value="Hành vi lặp lại">Hành vi lặp lại (bước tới lui…)</option>
+              </select>
+            </div>
+            <div class="bg-white/5 rounded-xl p-3 border border-white/10">
+              <p class="font-semibold text-slate-100 mb-1">Trưa (10:00–14:00)</p>
+              <select id="noonBehavior" class="w-full rounded-md bg-black/60 border border-white/20 px-2 py-1.5 text-[11px]">
+                <option value="">Chọn hành vi trội</option>
+                <option value="Ngủ/nằm yên">Ngủ/nằm yên</option>
+                <option value="Đi lại, tuần tra chuồng">Đi lại, tuần tra chuồng</option>
+                <option value="Ăn uống">Ăn uống</option>
+                <option value="Chơi đùa, tương tác xã hội">Chơi đùa, tương tác xã hội</option>
+                <option value="Hành vi lặp lại">Hành vi lặp lại (bước tới lui…)</option>
+              </select>
+            </div>
+            <div class="bg-white/5 rounded-xl p-3 border border-white/10">
+              <p class="font-semibold text-slate-100 mb-1">Chiều (14:00–18:00)</p>
+              <select id="afternoonBehavior" class="w-full rounded-md bg-black/60 border border-white/20 px-2 py-1.5 text-[11px]">
+                <option value="">Chọn hành vi trội</option>
+                <option value="Ngủ/nằm yên">Ngủ/nằm yên</option>
+                <option value="Đi lại, tuần tra chuồng">Đi lại, tuần tra chuồng</option>
+                <option value="Ăn uống">Ăn uống</option>
+                <option value="Chơi đùa, tương tác xã hội">Chơi đùa, tương tác xã hội</option>
+                <option value="Hành vi lặp lại">Hành vi lặp lại (bước tới lui…)</option>
+              </select>
+            </div>
+            <div class="bg-white/5 rounded-xl p-3 border border-white/10">
+              <p class="font-semibold text-slate-100 mb-1">Đêm (18:00–06:00)</p>
+              <select id="nightBehavior" class="w-full rounded-md bg-black/60 border border-white/20 px-2 py-1.5 text-[11px]">
+                <option value="">Chọn hành vi trội</option>
+                <option value="Ngủ/nằm yên">Ngủ/nằm yên</option>
+                <option value="Đi lại, tuần tra chuồng">Đi lại, tuần tra chuồng</option>
+                <option value="Săn mồi giả, chơi"">Săn mồi giả, chơi</option>
+                <option value="Gầm gừ, phát âm">Gầm gừ, phát âm</option>
+                <option value="Hành vi lặp lại">Hành vi lặp lại (bước tới lui…)</option>
+              </select>
+            </div>
+          </div>
+          <p id="patternHint" class="mt-3 text-[11px] md:text-xs text-slate-200 italic">
+            Gợi ý sẽ hiển thị ở đây dựa trên mẫu hành vi ngày – đêm.
+          </p>
+        </div>
+      </section>
+
+      <!-- Cột phải: Ghi chú & Hướng dẫn -->
+      <section class="space-y-5">
+        <!-- Ghi chú quan sát nhanh -->
+        <div class="bg-black/65 border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/40 flex flex-col h-full">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-lg font-semibold flex items-center gap-2">
+              <span class="h-6 w-1.5 rounded-full bg-amber-500"></span>
+              Ghi chú quan sát chi tiết
+            </h2>
+          </div>
+
+          <label class="block text-xs md:text-sm text-slate-200 mb-1">Mô tả hành vi vừa quan sát</label>
+          <textarea id="noteText" rows="4" class="w-full rounded-xl bg-black/60 border border-white/15 px-3 py-2 text-xs md:text-sm resize-none focus:outline-none focus:ring-1 focus:ring-amber-400/80" placeholder="VD: 09:15 – Sư tử đực nằm ở góc chuồng, thỉnh thoảng liếm lông, phản ứng nhẹ khi khách đi ngang."></textarea>
+
+          <div class="mt-2 grid grid-cols-2 gap-2 text-[11px] md:text-xs">
+            <div>
+              <label class="block text-slate-200 mb-1">Mức độ tích cực</label>
+              <select id="noteValence" class="w-full rounded-lg bg-black/60 border border-white/20 px-2 py-1.5">
+                <option value="Trung tính">Trung tính</option>
+                <option value="Tích cực">Tích cực</option>
+                <option value="Tiêu cực">Tiêu cực</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-slate-200 mb-1">Nhóm hành vi</label>
+              <select id="noteCategory" class="w-full rounded-lg bg-black/60 border border-white/20 px-2 py-1.5">
+                <option value="Chung">Chung</option>
+                <option value="Ăn uống">Ăn uống</option>
+                <option value="Xã hội">Xã hội</option>
+                <option value="Hành vi bất thường">Hành vi bất thường</option>
+                <option value="Sức khỏe">Sức khỏe</option>
+              </select>
+            </div>
+          </div>
+
+          <button id="saveNoteBtn" class="mt-3 inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/90 text-black text-xs font-semibold hover:bg-amber-400 active:scale-95 transition">
+            Lưu ghi chú
+          </button>
+
+          <div class="mt-4 border-t border-white/10 pt-3 flex-1 flex flex-col min-h-[120px]">
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-xs md:text-sm font-semibold text-slate-100">Lịch sử ghi chú hôm nay</p>
+              <button id="clearNotesBtn" class="text-[10px] px-2 py-0.5 rounded-full border border-slate-400/60 text-slate-200 hover:bg-slate-500/10 active:scale-95 transition">
+                Xoá ghi chú
+              </button>
+            </div>
+            <div id="notesList" class="thin-scrollbar space-y-2 max-h-60 overflow-y-auto text-[11px] md:text-xs text-slate-100">
+              <p class="text-slate-300 italic">Chưa có ghi chú. Hãy bắt đầu bằng việc lưu quan sát đầu tiên.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hướng dẫn diễn giải nhanh -->
+        <div class="bg-black/65 border border-white/10 rounded-2xl p-4 md:p-4 shadow-xl shadow-black/40 text-[11px] md:text-xs space-y-2">
+          <h2 class="text-sm md:text-base font-semibold mb-1">Gợi ý diễn giải nhanh (góc chuyên gia)</h2>
+          <ul class="list-disc list-inside space-y-1 text-slate-200">
+            <li><span class="font-semibold text-amber-200">Điểm trung bình &lt; 2,5</span>: Cần xem lại chế độ nuôi, enrichment và kiểm tra thú y.</li>
+            <li><span class="font-semibold text-amber-200">Hành vi lặp lại xuất hiện &gt; 15 phút/liên tục</span>: Ghi chú chi tiết, trao đổi với bác sĩ thú y và chuyên gia hành vi.</li>
+            <li><span class="font-semibold text-amber-200">Giảm ăn đột ngột ≥ 2 bữa</span>: Xem là tín hiệu cảnh báo sớm về bệnh hoặc stress.</li>
+            <li><span class="font-semibold text-amber-200">Ít tương tác với môi trường</span> (điểm enrichment ≤ 2): Tăng cường đồ chơi, mồi treo, mùi hương mới.</li>
+            <li><span class="font-semibold text-amber-200">Hoạt động đảo lộn ngày – đêm</span>: Cân nhắc điều chỉnh lịch cho ăn, ánh sáng, tiếng ồn khu vực.</li>
+          </ul>
+          <p class="mt-2 text-slate-300">
+            Lưu ý: các chỉ tiêu trên là gợi ý chung. Cần kết hợp với tiền sử cá thể, điều kiện chuồng trại và trao đổi định kỳ
+            giữa người chăm sóc – bác sĩ thú y – chuyên gia hành vi để đưa ra quyết định.
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Cập nhật ngày giờ hiện tại
+    function updateDateTime() {
+      const now = new Date();
+      const dateEl = document.getElementById('currentDate');
+      const timeEl = document.getElementById('currentTime');
+      if (!dateEl || !timeEl) return;
+      const d = String(now.getDate()).padStart(2, '0');
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const y = now.getFullYear();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      dateEl.textContent = `Ngày: ${d}/${m}/${y}`;
+      timeEl.textContent = `Giờ: ${hh}:${mm}`;
+    }
+    updateDateTime();
+    setInterval(updateDateTime, 60 * 1000);
+
+    // Bản đồ nhãn cho điểm
+    function scoreLabel(score) {
+      score = Number(score);
+      if (score <= 1) return 'Rất đáng lo';
+      if (score === 2) return 'Dưới chuẩn';
+      if (score === 3) return 'Trung bình';
+      if (score === 4) return 'Tốt';
+      return 'Rất tốt';
+    }
+
+    // Cập nhật label và điểm trung bình
+    const sliders = document.querySelectorAll('.score-slider');
+    const avgScoreEl = document.getElementById('avgScore');
+    const riskBadge = document.getElementById('riskBadge');
+
+    function updateScores() {
+      let sum = 0;
+      let count = 0;
+      sliders.forEach(sl => {
+        const key = sl.dataset.key;
+        const val = Number(sl.value || 0);
+        sum += val;
+        count++;
+        const labelEl = document.querySelector(`[data-label-for="${key}"]`);
+        if (labelEl) labelEl.textContent = scoreLabel(val);
+      });
+      if (!count) return;
+      const avg = (sum / count).toFixed(1);
+      if (avgScoreEl) avgScoreEl.textContent = avg;
+      // Đánh giá rủi ro
+      const a = Number(avg);
+      if (riskBadge) {
+        let text = 'Bình thường';
+        let cls = 'inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border ';
+        if (a < 2.5) {
+          text = 'Nguy cơ cao';
+          cls += 'bg-red-500/10 text-red-200 border-red-400/70';
+        } else if (a < 3.5) {
+          text = 'Cần theo dõi';
+          cls += 'bg-amber-500/10 text-amber-100 border-amber-400/70';
+        } else {
+          cls += 'bg-emerald-500/15 text-emerald-200 border-emerald-400/60';
+        }
+        riskBadge.className = cls;
+        riskBadge.innerHTML = `<span class="h-2.5 w-2.5 rounded-full bg-current animate-pulse"></span>${text}`;
+      }
+      saveToStorage();
+    }
+
+    sliders.forEach(sl => {
+      sl.addEventListener('input', updateScores);
+    });
+    updateScores();
+
+    // Gợi ý mẫu hành vi ngày – đêm
+    const morningSelect = document.getElementById('morningBehavior');
+    const noonSelect = document.getElementById('noonBehavior');
+    const afternoonSelect = document.getElementById('afternoonBehavior');
+    const nightSelect = document.getElementById('nightBehavior');
+    const patternHint = document.getElementById('patternHint');
+
+    function updatePatternHint() {
+      if (!patternHint) return;
+      const m = morningSelect.value;
+      const n = noonSelect.value;
+      const a = afternoonSelect.value;
+      const night = nightSelect.value;
+
+      let msg = 'Gợi ý sẽ hiển thị ở đây dựa trên mẫu hành vi ngày – đêm.';
+
+      const mostlySleepingDay = [m, n, a].filter(v => v === 'Ngủ/nằm yên').length >= 2;
+      const nightActive = night === 'Săn mồi giả, chơi' || night === 'Gầm gừ, phát âm';
+      const repetitiveAny = [m, n, a, night].some(v => v.includes('Hành vi lặp lại'));
+
+      if (mostlySleepingDay && nightActive) {
+        msg = 'Mẫu gần với nhịp sinh học tự nhiên (ngủ ngày, hoạt động đêm). Vẫn cần đảm bảo môi trường đêm không quá ồn.';
+      }
+      if (mostlySleepingDay && !nightActive) {
+        msg = 'Sư tử khá ít hoạt động cả ngày lẫn đêm. Cần xem xét tăng cường enrichment và kiểm tra sức khỏe toàn diện.';
+      }
+      if (!mostlySleepingDay && nightActive) {
+        msg = 'Hoạt động cao cả ban ngày và ban đêm. Theo dõi thêm xem có dấu hiệu lo lắng, thiếu chỗ nghỉ hay không.';
+      }
+      if (repetitiveAny) {
+        msg += ' Lưu ý: Có xuất hiện hành vi lặp lại, cần ghi chú chi tiết thời lượng và hoàn cảnh.';
+      }
+
+      patternHint.textContent = msg;
+      saveToStorage();
+    }
+
+    [morningSelect, noonSelect, afternoonSelect, nightSelect].forEach(sel => {
+      if (sel) sel.addEventListener('change', updatePatternHint);
+    });
+
+    // Ghi chú quan sát với localStorage
+    const noteText = document.getElementById('noteText');
+    const noteValence = document.getElementById('noteValence');
+    const noteCategory = document.getElementById('noteCategory');
+    const saveNoteBtn = document.getElementById('saveNoteBtn');
+    const notesList = document.getElementById('notesList');
+    const clearNotesBtn = document.getElementById('clearNotesBtn');
+
+    function getStorageKey() {
+      const today = new Date();
+      const d = String(today.getDate()).padStart(2, '0');
+      const m = String(today.getMonth() + 1).padStart(2, '0');
+      const y = today.getFullYear();
+      return `lion-behavior-${y}-${m}-${d}`;
+    }
+
+    function loadNotes() {
+      const key = getStorageKey();
+      let data;
+      try {
+        data = JSON.parse(localStorage.getItem(key) || '{}');
+      } catch (e) {
+        data = {};
+      }
+      return data;
+    }
+
+    function renderNotes() {
+      if (!notesList) return;
+      const data = loadNotes();
+      const notes = data.notes || [];
+      notesList.innerHTML = '';
+      if (!notes.length) {
+        const p = document.createElement('p');
+        p.className = 'text-slate-300 italic';
+        p.textContent = 'Chưa có ghi chú. Hãy bắt đầu bằng việc lưu quan sát đầu tiên.';
+        notesList.appendChild(p);
+        return;
+      }
+      notes.slice().reverse().forEach(note => {
+        const item = document.createElement('div');
+        const color = note.valence === 'Tích cực' ? 'text-emerald-300' : note.valence === 'Tiêu cực' ? 'text-red-300' : 'text-slate-200';
+        item.className = 'border border-white/10 rounded-lg px-2 py-1.5 bg-black/50';
+        item.innerHTML = `
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-[10px] text-slate-300">${note.time} • ${note.category}</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded-full border border-white/20 ${color}">${note.valence}</span>
+          </div>
+          <p class="text-[11px] text-slate-100 whitespace-pre-line">${note.text}</p>
+        `;
+        notesList.appendChild(item);
+      });
+    }
+
+    function saveNote() {
+      const text = (noteText.value || '').trim();
+      if (!text) {
+        alert('Vui lòng ghi nội dung quan sát.');
+        return;
+      }
+      const valence = noteValence.value || 'Trung tính';
+      const category = noteCategory.value || 'Chung';
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const time = `${hh}:${mm}`;
+      const key = getStorageKey();
+      const data = loadNotes();
+      if (!Array.isArray(data.notes)) data.notes = [];
+      data.notes.push({ text, valence, category, time });
+      localStorage.setItem(key, JSON.stringify(data));
+      noteText.value = '';
+      renderNotes();
+    }
+
+    if (saveNoteBtn) saveNoteBtn.addEventListener('click', saveNote);
+
+    if (clearNotesBtn) {
+      clearNotesBtn.addEventListener('click', () => {
+        if (!confirm('Xoá toàn bộ ghi chú của hôm nay?')) return;
+        const key = getStorageKey();
+        const data = loadNotes();
+        data.notes = [];
+        localStorage.setItem(key, JSON.stringify(data));
+        renderNotes();
+      });
+    }
+
+    // Lưu & tải dữ liệu biểu mẫu chính vào localStorage
+    function saveToStorage() {
+      const key = getStorageKey();
+      const existing = loadNotes();
+      // Thu thập dữ liệu biểu mẫu
+      const lionId = document.getElementById('lionId')?.value || '';
+      const lionSex = document.getElementById('lionSex')?.value || '';
+      const lionAge = document.getElementById('lionAge')?.value || '';
+      const enclosure = document.getElementById('enclosure')?.value || '';
+      const observer = document.getElementById('observer')?.value || '';
+      const timeSlot = document.getElementById('timeSlot')?.value || '';
+
+      const scores = {};
+      const notes = {};
+      document.querySelectorAll('.score-slider').forEach(sl => {
+        const key = sl.dataset.key;
+        scores[key] = Number(sl.value || 0);
+        const noteInput = document.querySelector(`[data-note-for="${key}"]`);
+        if (noteInput) notes[key] = noteInput.value || '';
+      });
+
+      const pattern = {
+        morning: morningSelect?.value || '',
+        noon: noonSelect?.value || '',
+        afternoon: afternoonSelect?.value || '',
+        night: nightSelect?.value || ''
+      };
+
+      const avg = avgScoreEl ? avgScoreEl.textContent : '';
+
+      const payload = {
+        ...existing,
+        form: {
+          lionId,
+          lionSex,
+          lionAge,
+          enclosure,
+          observer,
+          timeSlot,
+          scores,
+          scoreNotes: notes,
+          pattern,
+          avg
+        }
+      };
+
+      localStorage.setItem(key, JSON.stringify(payload));
+    }
+
+    function loadFormFromStorage() {
+      const key = getStorageKey();
+      const data = loadNotes();
+      if (!data.form) {
+        renderNotes();
+        return;
+      }
+      const f = data.form;
+      if (document.getElementById('lionId')) document.getElementById('lionId').value = f.lionId || '';
+      if (document.getElementById('lionSex')) document.getElementById('lionSex').value = f.lionSex || '';
+      if (document.getElementById('lionAge')) document.getElementById('lionAge').value = f.lionAge || '';
+      if (document.getElementById('enclosure')) document.getElementById('enclosure').value = f.enclosure || '';
+      if (document.getElementById('observer')) document.getElementById('observer').value = f.observer || '';
+      if (document.getElementById('timeSlot')) document.getElementById('timeSlot').value = f.timeSlot || '';
+
+      if (f.scores) {
+        document.querySelectorAll('.score-slider').forEach(sl => {
+          const key = sl.dataset.key;
+          if (f.scores[key] != null) sl.value = f.scores[key];
+        });
+      }
+      if (f.scoreNotes) {
+        Object.keys(f.scoreNotes).forEach(k => {
+          const inp = document.querySelector(`[data-note-for="${k}"]`);
+          if (inp) inp.value = f.scoreNotes[k];
+        });
+      }
+      if (f.pattern) {
+        if (morningSelect) morningSelect.value = f.pattern.morning || '';
+        if (noonSelect) noonSelect.value = f.pattern.noon || '';
+        if (afternoonSelect) afternoonSelect.value = f.pattern.afternoon || '';
+        if (nightSelect) nightSelect.value = f.pattern.night || '';
+      }
+      if (f.avg && avgScoreEl) avgScoreEl.textContent = f.avg;
+      renderNotes();
+      updateScores();
+      updatePatternHint();
+    }
+
+    window.addEventListener('load', loadFormFromStorage);
+
+    // Xoá toàn bộ dữ liệu biểu mẫu + ghi chú hôm nay
+    const clearAllBtn = document.getElementById('clearAllBtn');
+    if (clearAllBtn) {
+      clearAllBtn.addEventListener('click', () => {
+        if (!confirm('Xoá toàn bộ dữ liệu (biểu mẫu + ghi chú) của ngày hôm nay?')) return;
+        const key = getStorageKey();
+        localStorage.removeItem(key);
+        // Reset form
+        document.querySelectorAll('input, textarea, select').forEach(el => {
+          if (el.type === 'range') {
+            el.value = 3;
+          } else if (el.type === 'number') {
+            el.value = '';
+          } else if (el.tagName === 'SELECT') {
+            el.value = '';
+          } else if (el.tagName === 'TEXTAREA' || el.type === 'text') {
+            el.value = '';
+          }
+        });
+        updateScores();
+        updatePatternHint();
+        renderNotes();
+      });
+    }
+
+    // Xuất dữ liệu ra JSON
+    const exportJsonBtn = document.getElementById('exportJsonBtn');
+    const copyJsonBtn = document.getElementById('copyJsonBtn');
+
+    function collectAllData() {
+      const key = getStorageKey();
+      const base = loadNotes();
+      const now = new Date();
+      const d = String(now.getDate()).padStart(2, '0');
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const y = now.getFullYear();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      return {
+        meta: {
+          date: `${y}-${m}-${d}`,
+          exportedAt: `${hh}:${mm}`,
+          version: 'lion-captivity-1.0'
+        },
+        ...base
+      };
+    }
+
+    if (exportJsonBtn) {
+      exportJsonBtn.addEventListener('click', () => {
+        const data = collectAllData();
+        const jsonStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'su-tu_quan-sat.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        // Đồng thời cho phép sao chép nhanh
+        copyJsonBtn?.classList.remove('hidden');
+        copyJsonBtn.dataset.json = jsonStr;
+        alert('Đã tạo file JSON tải xuống. Bạn cũng có thể sao chép nội dung bằng nút "Sao chép JSON".');
+      });
+    }
+
+    if (copyJsonBtn) {
+      copyJsonBtn.addEventListener('click', async () => {
+        const jsonStr = copyJsonBtn.dataset.json || JSON.stringify(collectAllData(), null, 2);
+        try {
+          await navigator.clipboard.writeText(jsonStr);
+          alert('Đã sao chép JSON vào clipboard.');
+        } catch (e) {
+          alert('Trình duyệt không cho phép sao chép tự động. Vui lòng dùng file đã tải xuống.');
+        }
+      });
+    }
+  </script>
+</body>
+</html>
